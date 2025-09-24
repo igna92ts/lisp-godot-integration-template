@@ -1,0 +1,13 @@
+<Project Sdk="Godot.NET.Sdk/4.4.1">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>lispecltest</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="lisp\simwrap.dll"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
+    <None Update="lisp\libsbcl.so"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
+    <None Update="lisp\sim.core"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
+  </ItemGroup>
+</Project>

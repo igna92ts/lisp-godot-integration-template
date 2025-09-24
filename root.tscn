@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://df4q40576gi8n"]
+
+[ext_resource type="Script" uid="uid://verqrj5olpea" path="res://IpcTest.cs" id="1_pq8q7"]
+
+[node name="root" type="Node"]
+script = ExtResource("1_pq8q7")
