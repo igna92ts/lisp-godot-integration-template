@@ -7,7 +7,7 @@ CC ?= gcc
 all: simwrap.dll
 
 # Build the SBCL core via ASDF
-sim.core: sim-core.asd src/package.lisp src/core.lisp src/bindings.lisp build.lisp
+sim.core: sim-core.asd src/package.lisp src/core.lisp build.lisp
 	CL_SOURCE_REGISTRY="$(CURDIR)" \
 	"$(SBCL_SRC)/run-sbcl.sh" --noinform --disable-debugger --load build.lisp --quit
 
@@ -19,7 +19,7 @@ simwrap.o: simwrap.c
 	$(CC) -O2 -Wall -c $< -o $@
 
 simwrap.dll: simwrap.o sim.core libsbcl.so
-	$(CC) -shared -o $@ simwrap.o "$(SBCL_SRC)/src/runtime/libsbcl.so" -lzstd
+	$(CC) -shared -o $@ simwrap.o -Wl,--allow-multiple-definition -Wl,--whole-archive $(SBCL_SRC)/src/runtime/libsbcl.so -Wl,--no-whole-archive -Wl,--export-all-symbols
 
 # Optional: copy runtime DLLs next to outputs for quick testing
 # stage: $(DLL)
@@ -27,4 +27,4 @@ simwrap.dll: simwrap.o sim.core libsbcl.so
 # 	-@cp /mingw64/bin/libzstd.dll . 2>NUL || true
 
 clean:
-	-@rm -f simwrap.dll simwrap.o sim.core
+	-@rm -f simwrap.dll simwrap.o sim.core libsbcl.so

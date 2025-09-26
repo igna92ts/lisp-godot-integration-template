@@ -1,3 +1,3 @@
 (defpackage :sim.core
-  (:use :cl)
-  (:export :start :stop :sim-start :sim-stop))
+  (:use :cl :sb-alien)
+  (:export :simstart :simstop :start :stop))

@@ -4,46 +4,55 @@ using System.Runtime.InteropServices;
 
 public partial class IpcTest : Node
 {
-#if GODOT_WINDOWS
-    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
-    static extern bool SetDllDirectory(string lpPathName);
+    [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Ansi)]
+    static extern bool SetDllDirectoryA(string lpPathName);
 
-    [DllImport("simwrap", CallingConvention = CallingConvention.Cdecl)]
-    static extern int sim_init(string corePath);
+    [DllImport("simwrap.dll", EntryPoint = "init_sim")]
+    static extern int init_sim();
 
-    [DllImport("simwrap", CallingConvention = CallingConvention.Cdecl)]
-    static extern int sim_start_now();
+    [DllImport("simwrap.dll", EntryPoint = "start_simulation")]
+    static extern int start_simulation();
 
-    [DllImport("simwrap", CallingConvention = CallingConvention.Cdecl)]
-    static extern void sim_stop_now();
-#endif
+    [DllImport("simwrap.dll", EntryPoint = "stop_simulation")]
+    static extern void stop_simulation();
 
     public override void _Ready()
     {
         var lispDir = ProjectSettings.GlobalizePath("res://lisp");
-        var corePath = ProjectSettings.GlobalizePath("res://lisp/sim.core");
+        GD.Print($"[SimBridge] Lisp dir: {lispDir}");
+        // Ensure loader can find simwrap.dll and its deps
+        if (!SetDllDirectoryA(lispDir))
+            GD.PushWarning("SetDllDirectoryA failed. DLLs must be in executable folder or PATH.");
 
-        // make Windows loader look in res://lisp for libsbcl.so dependency
-        SetDllDirectory(lispDir);
-        System.Environment.SetEnvironmentVariable(
-          "PATH",
-          lispDir + ";" + System.Environment.GetEnvironmentVariable("PATH")
-        );
-
-        var rc = sim_init(corePath);
-        if (rc != 0)
+        GD.Print($"[SimBridge] core path: {ProjectSettings.GlobalizePath("res://lisp/sim.core")}");
+        try
         {
-            GD.PrintErr($"sim_init failed: {rc} (check sim.core & libsbcl.so in res://lisp)");
-            return;
+            int rc = init_sim();
+            if (rc != 0) { GD.PushError($"init_sim failed: {rc}"); GetTree().Quit(1); return; }
+            GD.Print("[SimBridge] init_sim ok");
+            var res = start_simulation();
+            GD.Print($"simulation started -> {res}");
         }
-
-        var s = sim_start_now();
-        if (s != 0) GD.PushWarning($"sim_start_now returned {s}");
-        else GD.Print("SBCL sim started.");
+        catch (DllNotFoundException dnfe)
+        {
+            GD.PushError("DllNotFoundException: " + dnfe.Message);
+            GetTree().Quit(2);
+        }
+        catch (BadImageFormatException bif)
+        {
+            GD.PushError("BadImageFormatException (arch mismatch): " + bif.Message);
+            GetTree().Quit(3);
+        }
+        catch (Exception ex)
+        {
+            GD.PushError("init_sim exception: " + ex.ToString());
+            GetTree().Quit(4);
+        }
     }
 
     public override void _ExitTree()
     {
-        try { sim_stop_now(); } catch { }
+        try { stop_simulation(); } catch { }
     }
 }
+

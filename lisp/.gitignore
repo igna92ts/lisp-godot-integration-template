@@ -1,5 +1,5 @@
 ./sbcl-source/
 simwrap.o
 simwrap.dll
-sim-core.core
+sim.core
 libsbcl.so
