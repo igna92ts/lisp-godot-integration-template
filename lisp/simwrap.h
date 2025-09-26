@@ -23,14 +23,17 @@ extern LIB_API void (*lisp_enable_debugger)();
 extern LIB_API void (*lisp_disable_debugger)();
 extern LIB_API void (*lisp_gc)();
 
+extern LIB_API int init_sim(void);
+
 // Value with names coming from lisp
 extern int  (*simstart)(void);
 extern void (*simstop)(void);
-extern LIB_API int init_sim(void);
+extern int (*start_repl)(int);
 
 // This wrappers need to be here, its a pointer thing
 // https://mstmetent.blogspot.com/2022/04/using-lisp-libraries-from-other.html
 extern LIB_API int start_simulation(void);
 extern LIB_API void stop_simulation(void);
+extern LIB_API int start_simulation_repl(int);
 
 #endif

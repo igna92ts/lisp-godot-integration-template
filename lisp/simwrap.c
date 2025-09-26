@@ -8,6 +8,7 @@ extern int initialize_lisp(int argc, char **argv);
 
 int  (*simstart)(void);
 void (*simstop)(void);
+int (*start_repl)(int);
 
 int init_sim() {
     static int initialized = 0;
@@ -25,14 +26,13 @@ int init_sim() {
 }
 
 int start_simulation() {
-  simstart();
-    // if (simstart() != 0) {
-    //     fprintf(stderr, "Failed to start simulation\n");
-    //     return -1;
-    // }
-  return 0;
+  return simstart();
 }
 
 void stop_simulation() {
   simstop();
+}
+
+int start_simulation_repl(int port) {
+  return start_repl(port);
 }

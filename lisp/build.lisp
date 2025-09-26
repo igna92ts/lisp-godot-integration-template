@@ -5,4 +5,4 @@
 (sb-ext:save-lisp-and-die "sim.core"
   :executable nil
   :compression t
-  :callable-exports (list 'simstart 'simstop))
+  :callable-exports (list 'simstart 'simstop 'start-repl))

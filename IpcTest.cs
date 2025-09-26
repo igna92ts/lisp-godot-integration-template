@@ -16,6 +16,9 @@ public partial class IpcTest : Node
     [DllImport("simwrap.dll", EntryPoint = "stop_simulation")]
     static extern void stop_simulation();
 
+    [DllImport("simwrap.dll", EntryPoint = "start_simulation_repl")]
+    static extern int start_simulation_repl(int port);
+
     public override void _Ready()
     {
         var lispDir = ProjectSettings.GlobalizePath("res://lisp");
@@ -30,8 +33,11 @@ public partial class IpcTest : Node
             int rc = init_sim();
             if (rc != 0) { GD.PushError($"init_sim failed: {rc}"); GetTree().Quit(1); return; }
             GD.Print("[SimBridge] init_sim ok");
-            var res = start_simulation();
-            GD.Print($"simulation started -> {res}");
+            var simStatus = start_simulation();
+            GD.Print($"simulation started -> {simStatus}");
+
+            var replStatus = start_simulation_repl(4005);
+            GD.Print($"repl started -> {replStatus}");
         }
         catch (DllNotFoundException dnfe)
         {
